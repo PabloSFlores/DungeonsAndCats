@@ -5,6 +5,14 @@ public class SplashSceneController : MonoBehaviour
     [SerializeField] private TransitionController transitionController;  // Referencia al script de transición
     private bool isTransitioning = false;  // Bandera para evitar duplicados
 
+    private void Start()
+    {
+        if(AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayMusic("Theme");
+        }
+    }
+
     private void Update()
     {
         // Solo detecta cualquier tecla si la entrada está habilitada y no está en transición
