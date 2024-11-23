@@ -11,7 +11,7 @@ public class DestructibleObject : MonoBehaviour
     void Start()
     {
         currentHealth = maxHealth;
-        UpdateSprite();
+        //UpdateSprite();
     }
 
     public void TakeDamage(int damage)
@@ -29,6 +29,8 @@ public class DestructibleObject : MonoBehaviour
 
     void UpdateSprite()
     {
+        Debug.Log("Entra a cambios de sprite");
+        Debug.Log("Math " + Mathf.Clamp(maxHealth - currentHealth, 0, damageSprites.Length - 1));
         int spriteIndex = Mathf.Clamp(maxHealth - currentHealth, 0, damageSprites.Length - 1);
         spriteRenderer.sprite = damageSprites[spriteIndex];
     }
