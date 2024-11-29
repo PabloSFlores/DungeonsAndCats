@@ -10,11 +10,12 @@ public class PlayerMovement : MonoBehaviour
     public float attackRange = 0.5f; // Rango del ataque
     public LayerMask enemyLayers; // Capas de los enemigos que pueden recibir daño
 
-    Vector2 direction;
-    Rigidbody2D rigidBody;
-    Animator animator;
+    private Vector2 direction;
+    private Rigidbody2D rigidBody;
+    private Animator animator;
+    private BasicInteraction basicInteraction;
 
-    bool isAttacking;
+    private bool isAttacking;
 
     private void Start()
     {
@@ -24,7 +25,6 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        // Actualiza la velocidad del personaje
         rigidBody.velocity = direction * speed;
     }
 
@@ -32,17 +32,30 @@ public class PlayerMovement : MonoBehaviour
     {
         Movement();
         Animations();
+        Inputs();
+    }
+
+    private void Inputs()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if (basicInteraction != null)
+            {
+                Vector2 playerFacing = new Vector2(animator.GetFloat("Horizontal"), animator.GetFloat("Vertical"));
+                if (!basicInteraction.Interact(playerFacing, transform.position))
+                {
+                    Attack();
+                }
+            }
+        }
     }
 
     private void Movement()
     {
-        // Detener movimiento mientras ataca
-        if (isAttacking) return;
+        if (isAttacking || Time.timeScale == 0) return;
 
-        // Capturar movimiento del jugador
         direction = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical")).normalized;
 
-        // Iniciar ataque con clic izquierdo
         if (Input.GetMouseButtonDown(0))
         {
             Attack();
@@ -51,26 +64,27 @@ public class PlayerMovement : MonoBehaviour
 
     private void Attack()
     {
-        // Reproducir animación de ataque
+        if (attackPoint == null)
+        {
+            Debug.LogError("AttackPoint no asignado en el jugador.");
+            return;
+        }
+
         animator.Play("Attack");
         isAttacking = true;
-        direction = Vector2.zero;
+        direction = Vector3.zero;
 
-        // Detectar objetos en el área de ataque
         Collider2D[] hitObjects = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayers);
 
-        // Aplicar daño a cada objeto detectado
         foreach (Collider2D obj in hitObjects)
         {
-            // Aplicar daño a enemigos
-            Enemy enemy = obj.GetComponent<Enemy>();
+            EnemyHealth enemy = obj.GetComponent<EnemyHealth>();
             if (enemy != null)
             {
                 enemy.TakeDamage(attackDamage);
-                continue; // Continuar con el siguiente objeto
+                continue;
             }
 
-            // Aplicar daño a objetos destruibles
             DestructibleObject destructible = obj.GetComponent<DestructibleObject>();
             if (destructible != null)
             {
@@ -79,12 +93,26 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Interaction"))
+        {
+            basicInteraction = collision.GetComponent<BasicInteraction>();
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Interaction"))
+        {
+            basicInteraction = null;
+        }
+    }
+
     private void Animations()
     {
-        // Detener animaciones mientras ataca
         if (isAttacking) return;
 
-        // Ajustar animaciones de movimiento
         if (direction.magnitude != 0)
         {
             animator.SetFloat("Horizontal", direction.x);
@@ -97,7 +125,6 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    // Llamado desde un evento en la animación para terminar el ataque
     private void EndAttack()
     {
         isAttacking = false;
@@ -105,7 +132,6 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        // Dibuja el rango de ataque en el editor
         if (attackPoint == null) return;
 
         Gizmos.color = Color.red;

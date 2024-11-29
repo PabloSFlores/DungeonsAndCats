@@ -3,36 +3,62 @@ using UnityEngine;
 public class DestructibleObject : MonoBehaviour
 {
     public int maxHealth = 3;
-    public SpriteRenderer spriteRenderer;
-    public Sprite[] damageSprites;
+    public Animator animator; // Referencia al Animator
+    [Tooltip("Nombre de la animación que se reproducirá al destruir el objeto.")]
+    public string destroyAnimationName = ""; // Nombre de la animación, configurable en el Inspector
 
     private int currentHealth;
 
     void Start()
     {
         currentHealth = maxHealth;
-        //UpdateSprite();
     }
 
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
+
         if (currentHealth <= 0)
         {
-            Destroy(gameObject);
+            PlayDestroyAnimation(); // Ejecutar animación antes de destruir
+        }
+    }
+
+    void PlayDestroyAnimation()
+    {
+        if (animator != null)
+        {
+            if (!string.IsNullOrEmpty(destroyAnimationName))
+            {
+                animator.Play(destroyAnimationName); // Reproduce la animación configurada
+                Destroy(gameObject, GetAnimationLength(destroyAnimationName)); // Destruye el objeto tras finalizar la animación
+            }
+            else
+            {
+                Debug.LogWarning("El nombre de la animación no está configurado en " + gameObject.name);
+                Destroy(gameObject); // Si no hay nombre de animación, destruye el objeto directamente
+            }
         }
         else
         {
-            UpdateSprite();
+            Debug.LogWarning("Animator no configurado en " + gameObject.name);
+            Destroy(gameObject); // Si no hay Animator, destruye el objeto directamente
         }
     }
 
-    void UpdateSprite()
+    float GetAnimationLength(string animationName)
     {
-        Debug.Log("Entra a cambios de sprite");
-        Debug.Log("Math " + Mathf.Clamp(maxHealth - currentHealth, 0, damageSprites.Length - 1));
-        int spriteIndex = Mathf.Clamp(maxHealth - currentHealth, 0, damageSprites.Length - 1);
-        spriteRenderer.sprite = damageSprites[spriteIndex];
+        RuntimeAnimatorController controller = animator.runtimeAnimatorController;
+
+        foreach (AnimationClip clip in controller.animationClips)
+        {
+            if (clip.name == animationName)
+            {
+                return clip.length;
+            }
+        }
+
+        Debug.LogWarning("No se encontró la animación: " + animationName);
+        return 0; // Devuelve 0 si no encuentra la animación
     }
 }
-
