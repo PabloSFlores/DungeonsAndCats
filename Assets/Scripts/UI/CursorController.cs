@@ -27,7 +27,7 @@ public class CursorController : MonoBehaviour
         // Inicialización del cursor
         controls = new CursorControls();
         ChangeCursor(cursor);
-        Cursor.lockState = CursorLockMode.Confined;
+        Cursor.lockState = CursorLockMode.None;
     }
 
     private void OnEnable()

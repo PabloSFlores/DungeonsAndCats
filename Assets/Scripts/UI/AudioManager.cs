@@ -24,7 +24,7 @@ public class AudioManager : MonoBehaviour
 
     private void Start()
     {
-        PlayMusic("Cinematic1");
+        PlayMusic("DGEC-5");
     }
 
     public void PlayMusic(string name)

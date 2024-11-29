@@ -43,8 +43,8 @@ public class GameManager : MonoBehaviour
     {
         dialogBoxNpc.SetActive(true);
         dialogTextNpc.text = text;
-        nameNpc.text = "";
-        imageNpc.sprite = null;
+        nameNpc.text = name;
+        imageNpc.sprite = image;
         Time.timeScale = 0;
     }
 
