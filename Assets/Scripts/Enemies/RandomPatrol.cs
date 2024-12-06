@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class RandomPatrol : EnemyHealth
@@ -10,16 +9,99 @@ public class RandomPatrol : EnemyHealth
     public float maxPatrolTime;
     public float minWaitTime;
     public float maxWaitTime;
+    public float detectionRange = 5f;
+    public float attackRange = 1.5f;
+    public float attackCooldown = 1f;
 
-    Animator animator;
+    private Animator animator;
+    private Vector2 direction;
+    private Transform player;
 
-    Vector2 direction;
+    private bool isAttacking = false;
+    private Coroutine patrolCoroutine;
 
     public override void Start()
     {
         base.Start();
         animator = GetComponent<Animator>();
-        StartCoroutine(Patrol());
+        player = GameObject.FindGameObjectWithTag("Player").transform;
+        PatrolBehavior();
+    }
+
+    void Update()
+    {
+        float distanceToPlayer = Vector2.Distance(transform.position, player.position);
+
+        if (distanceToPlayer <= detectionRange)
+        {
+            if (distanceToPlayer <= attackRange && !isAttacking)
+            {
+                StartCoroutine(Attack());
+            }
+            else if (!isAttacking)
+            {
+                MoveTowardsPlayer();
+            }
+        }
+        else if (!isAttacking)
+        {
+            if (patrolCoroutine == null)
+            {
+                PatrolBehavior();
+            }
+        }
+    }
+
+    private void MoveTowardsPlayer()
+    {
+        direction = (player.position - transform.position).normalized;
+        rigidbody.velocity = direction * speed;
+        animator.SetFloat("Horizontal", direction.x);
+        animator.SetFloat("Vertical", direction.y);
+        animator.Play("Run");
+    }
+
+    IEnumerator Attack()
+    {
+        if (isAttacking) yield break;
+
+        isAttacking = true;
+        rigidbody.velocity = Vector2.zero; // Detener movimiento
+        animator.Play("Attack");
+
+        Debug.Log("Intentando atacar al jugador");
+
+        PlayerMovement playerHealth = player?.GetComponent<PlayerMovement>();
+        if (playerHealth != null)
+        {
+            Debug.Log("Jugador detectado. Aplicando daño.");
+            playerHealth.TakeDamage(10);
+            Debug.Log("Jugador recibe daño: -10 HP");
+        }
+        else
+        {
+            Debug.LogWarning("No se encontró el componente PlayerMovement");
+        }
+
+        yield return new WaitForSeconds(attackCooldown);
+        isAttacking = false;
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        // Visualización del rango de detección y ataque
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, detectionRange);
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, attackRange);
+    }
+
+
+    private void PatrolBehavior()
+    {
+        if (patrolCoroutine != null) StopCoroutine(patrolCoroutine);
+        patrolCoroutine = StartCoroutine(Patrol());
     }
 
     IEnumerator Patrol()
@@ -32,7 +114,7 @@ public class RandomPatrol : EnemyHealth
         Animations();
         yield return new WaitForSeconds(Random.Range(minWaitTime, maxWaitTime));
 
-        StartCoroutine(Patrol());
+        PatrolBehavior();
     }
 
     private Vector2 RandomDirection()
@@ -52,27 +134,6 @@ public class RandomPatrol : EnemyHealth
         };
     }
 
-    /*public void FacePlayer(Vector2 playerPos)
-    {
-        float x = playerPos.x - transform.position.x;
-        float y = playerPos.y - transform.position.y;
-
-        if(Mathf.Abs(x) > Mathf.Abs(y))
-        {
-            if (x > 0) direction = Vector2.right;
-            else direction = Vector2.left;
-        }
-        else
-        {
-            if(y > 0) direction = Vector2.up;
-            else direction = Vector2.down;
-        }
-        animator.SetFloat("Horizontal", x);
-        animator.SetFloat("Vertical", y);
-        direction = Vector2.zero;
-        Animations();
-    }*/
-
     private void Animations()
     {
         if (direction.magnitude != 0)
@@ -81,20 +142,26 @@ public class RandomPatrol : EnemyHealth
             animator.SetFloat("Vertical", direction.y);
             animator.Play("Run");
         }
-        else animator.Play("Idle");
+        else
+        {
+            animator.Play("Idle");
+        }
 
         rigidbody.velocity = direction.normalized * speed;
     }
 
-    public override void StopBehaviour() 
-    { 
-        StopAllCoroutines();
-        direction = Vector2.zero;
-        Animations();
+    public override void StopBehaviour()
+    {
+        if (patrolCoroutine != null) StopCoroutine(patrolCoroutine);
+        rigidbody.velocity = Vector2.zero;
+        animator.Play("Idle");
     }
 
     public override void ContinueBehaviour()
     {
-        StartCoroutine(Patrol());
+        if (patrolCoroutine == null)
+        {
+            PatrolBehavior();
+        }
     }
 }

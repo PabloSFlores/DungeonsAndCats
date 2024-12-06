@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyHit : MonoBehaviour
@@ -11,25 +9,24 @@ public class EnemyHit : MonoBehaviour
     {
         enemyHealth = GetComponentInParent<EnemyHealth>();
         animator = GetComponent<Animator>();
+
+        if (animator == null)
+        {
+            Debug.LogError("Animator no encontrado en " + gameObject.name);
+        }
     }
 
     public void Defeat()
     {
         Debug.Log("Ejecutando animación Death");
-        animator.Play("Death");
-    }
 
-    // Métodos para invocar eventos desde la animación
-    private void Hide()
-    {
-        Debug.Log("Evento Hide ejecutado");
-        enemyHealth.TriggerDeathEvent("Hide");
-    }
-
-    private void Destroy()
-    {
-        Debug.Log("Evento Destroy ejecutado");
-        enemyHealth.TriggerDeathEvent("Destroy");
+        if (animator != null)
+        {
+            animator.Play("Death");
+        }
+        else
+        {
+            Debug.LogWarning("No se puede ejecutar la animación de muerte. Animator no asignado.");
+        }
     }
 }
-

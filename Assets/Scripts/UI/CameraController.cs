@@ -23,9 +23,18 @@ public class CameraController : MonoBehaviour
     public float movementTime = 0.5f;
     public bool isMoving;
 
+    EntitySceneControl entitySceneControl;
+
     void Start()
     {
         player = FindObjectOfType<PlayerMovement>().transform;
+        SetCameraFirtsPosition();
+        UpdateEntitySceneControl();
+    }
+
+    public void UpdateEntitySceneControl()
+    {
+        entitySceneControl = FindObjectOfType<EntitySceneControl>();
     }
 
     void Update()
@@ -56,6 +65,15 @@ public class CameraController : MonoBehaviour
                 StartCoroutine(MoveCamera());
             }
         }
+    }
+
+    private void SetCameraFirtsPosition()
+    {
+        float x = Mathf.Round(player.position.x / xMovement) * xMovement;
+        float y = Mathf.Round(player.position.y / yMovement) * yMovement;
+
+        transform.position = new Vector3(x, y, transform.position.z);
+        cameraDestination = transform.position;
     }
 
     IEnumerator MoveCamera()

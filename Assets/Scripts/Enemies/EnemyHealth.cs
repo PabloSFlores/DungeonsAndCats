@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyHealth : MonoBehaviour
@@ -7,6 +6,7 @@ public class EnemyHealth : MonoBehaviour
     [Header("EnemyHP parameters")]
     public int maxHP = 50;
     public int hp = 50;
+    public GameObject fishPrefab;
 
     public float knockbackStrength = 2f;
     protected float knockbackTime = 0.3f;
@@ -15,6 +15,7 @@ public class EnemyHealth : MonoBehaviour
     protected float invincibilityTime = 0.8f;
     protected float blinkTime = 0.1f;
 
+    private Animator animator;
     protected Rigidbody2D rigidbody;
     protected SpriteRenderer spriteRenderer;
 
@@ -34,11 +35,11 @@ public class EnemyHealth : MonoBehaviour
         if (invincible) return;
 
         hp -= damage;
-        Debug.Log("Enemigo recibió daño. Vida restante: " + hp);
+        Debug.Log($"Enemigo {gameObject.name} recibe daño: -{damage} HP. Vida restante: {hp}");
 
         if (hp <= 0)
         {
-            StartCoroutine(DieSequence()); // Cambiado para invocar la animación
+            StartCoroutine(DieSequence());
         }
         else
         {
@@ -52,22 +53,19 @@ public class EnemyHealth : MonoBehaviour
     private IEnumerator DieSequence()
     {
         Debug.Log("Enemigo derrotado");
-        GetComponentInChildren<EnemyHit>()?.Defeat(); // Invoca la animación de muerte
-        yield break; // No destruye directamente al enemigo, la animación lo manejará
-    }
 
-    public void TriggerDeathEvent(string eventName)
-    {
-        if (eventName == "Hide")
+        // Instanciar el pescado
+        if (fishPrefab != null)
         {
-            HideEnemy();
+            Instantiate(fishPrefab, transform.position, Quaternion.identity); // Crear pescado en la posición del enemigo
         }
-        else if (eventName == "Destroy")
-        {
-            Destroy(gameObject);
-        }
-    }
 
+        // Ejecutar la animación de muerte
+        GetComponentInChildren<EnemyHit>()?.Defeat();
+
+        yield return new WaitForSeconds(0.5f); // Esperar antes de destruir el enemigo
+        Destroy(gameObject); // Eliminar el enemigo
+    }
 
     private IEnumerator Invincibility()
     {
@@ -78,7 +76,7 @@ public class EnemyHealth : MonoBehaviour
         {
             yield return new WaitForSeconds(blinkTime);
             auxTime -= blinkTime;
-            spriteRenderer.enabled = !spriteRenderer.enabled; // Parpadeo
+            spriteRenderer.enabled = !spriteRenderer.enabled;
         }
 
         spriteRenderer.enabled = true;
@@ -96,21 +94,12 @@ public class EnemyHealth : MonoBehaviour
         Vector2 knockbackDirection = (transform.position - hitPosition).normalized;
         rigidbody.velocity = knockbackDirection * knockbackStrength;
 
-        Debug.Log("Knockback iniciado hacia: " + knockbackDirection);
-
         yield return new WaitForSeconds(knockbackTime);
         rigidbody.velocity = Vector2.zero;
+
         if (hp > 0) ContinueBehaviour();
     }
 
-    public void HideEnemy()
-    {
-        StopAllCoroutines();
-        rigidbody.velocity = Vector3.zero;
-        spriteRenderer.enabled = false;
-    }
-
     public virtual void StopBehaviour() { }
-
     public virtual void ContinueBehaviour() { }
 }

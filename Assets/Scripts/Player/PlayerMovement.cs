@@ -4,12 +4,15 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
+    public int health = 300; // Vida inicial del jugador
+
     public float speed = 5f;
     public int attackDamage = 10; // Daño del ataque
     public Transform attackPoint; // Punto desde donde se detecta el ataque
     public float attackRange = 0.5f; // Rango del ataque
     public LayerMask enemyLayers; // Capas de los enemigos que pueden recibir daño
 
+    GameManager gameManager;
     private Vector2 direction;
     private Rigidbody2D rigidBody;
     private Animator animator;
@@ -17,10 +20,17 @@ public class PlayerMovement : MonoBehaviour
 
     private bool isAttacking;
 
+
+    private void Awake()
+    {
+        transform.position = DataInstance.Instance.playerPosition;
+    }
+
     private void Start()
     {
         rigidBody = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+        gameManager = FindObjectOfType<GameManager>();
     }
 
     private void FixedUpdate()
@@ -90,6 +100,7 @@ public class PlayerMovement : MonoBehaviour
             {
                 destructible.TakeDamage(1); // Aplica 1 punto de daño al objeto destruible
             }
+
         }
     }
 
@@ -134,7 +145,41 @@ public class PlayerMovement : MonoBehaviour
     {
         if (attackPoint == null) return;
 
-        Gizmos.color = Color.red;
+        Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(attackPoint.position, attackRange);
     }
+
+    public void TakeDamage(int damage)
+    {
+        health -= damage;
+        health = Mathf.Max(health, 0); // Evitar que la vida sea negativa
+
+        Debug.Log($"Jugador recibe daño: -{damage} HP. Salud restante: {health}");
+
+        // Actualizar los corazones en el GameManager
+        gameManager.UpdateCurrentHP(-damage);
+
+        if (health <= 0)
+        {
+            Die();
+        }
+    }
+
+    public void Heal(int healAmount)
+    {
+        health += healAmount;
+        health = Mathf.Min(health, 300); // Evitar que la vida exceda el máximo
+
+        Debug.Log($"Jugador se cura: +{healAmount} HP. Salud actual: {health}");
+
+        // Actualizar los corazones en el GameManager
+        gameManager.UpdateCurrentHP(healAmount);
+    }
+
+    private void Die()
+    {
+        Debug.Log("El jugador ha muerto.");
+        Destroy(gameObject);
+    }
+
 }
