@@ -47,12 +47,12 @@ public class PauseMenu : MonoBehaviour
     public void QuitToMainMenu()
     {
         Time.timeScale = 1f; // Restablece la velocidad del juego
-        SceneManager.LoadScene("MainMenu"); // Carga la escena del menú principal (ajusta el nombre de la escena)
+        SceneManager.LoadScene("MainMenu"); // Carga la escena del menú principal
     }
 
     public void QuitGame()
     {
         Debug.Log("Saliendo del juego...");
-        Application.Quit(); // Cierra la aplicación (solo funciona en la versión compilada del juego)
+        Application.Quit(); // Cierra la aplicación (solo funciona cuando ya compilamos el juego)
     }
 }
