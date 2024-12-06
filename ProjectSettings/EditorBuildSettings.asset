@@ -18,11 +18,11 @@ EditorBuildSettings:
     path: Assets/Scenes/Levels/Level1.unity
     guid: 2cda990e2423bbf4892e6590ba056729
   - enabled: 1
-    path: Assets/Scenes/Levels/Level2_City.unity
-    guid: 9729df3c4be383943ae38af90c65f0e3
-  - enabled: 1
     path: Assets/Scenes/Cinematics/PreLevel2Cinematic.unity
     guid: 75bd4465d50ecde47af96aafe9e8a77e
+  - enabled: 1
+    path: Assets/Scenes/Levels/Level2_City.unity
+    guid: 9729df3c4be383943ae38af90c65f0e3
   - enabled: 1
     path: Assets/Scenes/Cinematics/PreLevel3Cinematic.unity
     guid: eeb815bf79108a3418e8b4b9c908d046

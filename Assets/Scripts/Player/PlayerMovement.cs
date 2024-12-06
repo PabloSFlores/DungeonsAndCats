@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -180,6 +181,13 @@ public class PlayerMovement : MonoBehaviour
     {
         Debug.Log("El jugador ha muerto.");
         Destroy(gameObject);
+        RestartLevel();
+    }
+
+    public void RestartLevel()
+    {
+        Time.timeScale = 1f; // Restablece la velocidad del juego
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name); // Reinicia la escena actual
     }
 
 }
