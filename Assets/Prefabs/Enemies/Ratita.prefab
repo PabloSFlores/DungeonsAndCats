@@ -189,12 +189,12 @@ MonoBehaviour:
   hp: 20
   fishPrefab: {fileID: 8786407544230090039, guid: 13900e3d23b1cd14d8643ee2b4284f9b, type: 3}
   knockbackStrength: 2
-  speed: 1.5
+  speed: 1.7
   minPatrolTime: 1
   maxPatrolTime: 2
   minWaitTime: 1
   maxWaitTime: 2
-  detectionRange: 5
+  detectionRange: 40
   attackRange: 0.8
   attackCooldown: 1
 --- !u!114 &6946646902311674790
@@ -209,8 +209,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c55d58b30edbd7647bd8aa3e578471f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHP: 50
-  hp: 50
+  maxHP: 20
+  hp: 20
   fishPrefab: {fileID: 8786407544230090039, guid: 13900e3d23b1cd14d8643ee2b4284f9b, type: 3}
   knockbackStrength: 2
 --- !u!1 &7993033147193494072

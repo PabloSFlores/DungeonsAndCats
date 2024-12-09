@@ -8,6 +8,7 @@ TagManager:
   - Interaction
   - Fish
   - Enemy
+  - Destination
   layers:
   - Default
   - TransparentFX

@@ -13,6 +13,7 @@ public class ChangeScene : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         {
+            Debug.Log("¡Continuará! Cambiando a la escena final.");
             DataInstance.Instance.playerPosition = playerDestination;
             SceneManager.LoadScene(sceneIndex);
         }

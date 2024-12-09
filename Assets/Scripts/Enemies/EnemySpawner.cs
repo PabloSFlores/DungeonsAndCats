@@ -10,10 +10,13 @@ public class EnemySpawner : MonoBehaviour
 
     private bool spawning = false;
 
-    void Start()
+    public void StartSpawning()
     {
-        // Inicia la generación de enemigos
-        StartCoroutine(SpawnEnemies());
+        if (!spawning)
+        {
+            spawning = true;
+            StartCoroutine(SpawnEnemies());
+        }
     }
 
     private IEnumerator SpawnEnemies()
@@ -22,23 +25,21 @@ public class EnemySpawner : MonoBehaviour
 
         while (elapsedTime < spawnDuration)
         {
-            // Llama a la función para generar a los enemigos
             SpawnEnemy();
             elapsedTime += spawnInterval;
             yield return new WaitForSeconds(spawnInterval);
         }
+
+        spawning = false; // Finaliza el proceso de spawn
     }
 
-    // Función para generar un enemigo en una posición aleatoria
     void SpawnEnemy()
     {
         if (spawnPoints.Length > 0)
         {
-            // Elegir un punto de spawn aleatorio
             int randomIndex = Random.Range(0, spawnPoints.Length);
             Transform spawnPoint = spawnPoints[randomIndex];
 
-            // Instanciar el enemigo en el punto de spawn
             Instantiate(enemyPrefab, spawnPoint.position, spawnPoint.rotation);
         }
     }

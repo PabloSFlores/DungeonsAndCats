@@ -48,5 +48,9 @@ public class NpcBasicDialog : BasicInteraction
     {
         gameManager.HideTextNpc();
         dialogCounter = 0;
+
+        // Activar la secuencia de eventos
+        FindObjectOfType<EventManager>()?.StartEventSequence();
     }
+
 }
